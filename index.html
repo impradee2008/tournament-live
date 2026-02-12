@@ -34,43 +34,5 @@
         document.getElementById('loading').style.display = 'none';
     };
 </script>
-
-<script>
-    window.addEventListener('message', function(event) {
-  // Temporarily remove origin check for testing
-  console.log('Message received from origin:', event.origin);
-
-  if (event.data.type === 'navigationRequest') {
-    console.log('Navigation request received:', event.data);
-
-    try {
-      const iframe = document.getElementById('appFrame'); // Use ID directly
-      if (iframe) {
-        console.log('Found iframe, updating src to:', event.data.url);
-        iframe.src = event.data.url;
-
-        event.source.postMessage({
-          requestId: event.data.requestId,
-          success: true,
-          message: 'Navigation successful',
-          timestamp: Date.now()
-        }, event.origin);
-
-        console.log('Navigation completed successfully');
-      } else {
-        throw new Error('Badminton app iframe not found');
-      }
-    } catch (error) {
-      console.error('Navigation failed:', error);
-      event.source.postMessage({
-        requestId: event.data.requestId,
-        success: false,
-        error: error.message,
-        timestamp: Date.now()
-      }, event.origin);
-    }
-  }
-});
-</script>
 </body>
 </html>
