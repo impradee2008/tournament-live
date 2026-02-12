@@ -34,5 +34,55 @@
         document.getElementById('loading').style.display = 'none';
     };
 </script>
+
+<script>
+    window.addEventListener('message', function(event) {
+      // Verify origin for security - only accept messages from Google Apps Script
+      if (!event.origin.includes('script.google.com')) {
+        console.log('Ignoring message from unauthorized origin:', event.origin);
+        return;
+      }
+
+      if (event.data.type === 'navigationRequest') {
+        console.log('Navigation request received:', event.data);
+
+        try {
+          // Find the iframe containing the badminton app
+          const iframe = document.querySelector('iframe[src*="script.google.com"]');
+          if (iframe) {
+            console.log('Found iframe, updating src to:', event.data.url);
+
+            // Update iframe src to trigger navigation
+            iframe.src = event.data.url;
+
+            // Send success response back to iframe
+            event.source.postMessage({
+              requestId: event.data.requestId,
+              success: true,
+              message: 'Navigation successful',
+              timestamp: Date.now()
+            }, event.origin);
+
+            console.log('Navigation completed successfully');
+          } else {
+            throw new Error('Badminton app iframe not found on page');
+          }
+        } catch (error) {
+          console.error('Navigation failed:', error);
+
+          // Send error response back to iframe
+          event.source.postMessage({
+            requestId: event.data.requestId,
+            success: false,
+            error: error.message,
+            timestamp: Date.now()
+          }, event.origin);
+        }
+      }
+    });
+
+    // Log that the listener is ready
+    console.log('Badminton Tournament App message listener initialized');
+</script>
 </body>
 </html>
